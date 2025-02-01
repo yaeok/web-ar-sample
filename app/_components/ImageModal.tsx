@@ -10,16 +10,35 @@ type ImageModalProps = {
 
 const ImageModal = ({ isOpen, onClose, capturedImage }: ImageModalProps) => {
   // 画像をローカルに保存
-  const saveImage = () => {
+  const saveImage = async () => {
     if (capturedImage) {
-      const link = document.createElement('a')
-      link.href = capturedImage
-      link.download = 'captured_image.png'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      try {
+        const response = await fetch(capturedImage)
+        const blob = await response.blob()
+        const file = new File([blob], 'captured_image.png', {
+          type: 'image/png',
+        })
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Captured Image',
+            text: '撮影した画像を保存しました。',
+          })
+        } else {
+          const link = document.createElement('a')
+          link.href = capturedImage
+          link.download = 'captured_image.png'
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+        }
+      } catch (error) {
+        console.error('画像の保存に失敗しました:', error)
+      }
     }
   }
+
   if (isOpen) {
     return (
       <div className='fixed inset-0 max-h-screen z-50'>
