@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useRef, useState } from 'react'
-import Image from 'next/image'
+import ImageModal from './ImageModal'
 
 const WebCamera: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
@@ -10,6 +10,10 @@ const WebCamera: React.FC = () => {
   const [hasError, setHasError] = useState<boolean>(false)
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user')
   const [capturedImage, setCapturedImage] = useState<string | null>(null)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+
+  const openModal = () => setIsOpen(true)
+  const closeModal = () => setIsOpen(false)
 
   // カメラを起動する関数
   const startCamera = async () => {
@@ -55,6 +59,7 @@ const WebCamera: React.FC = () => {
         canvas.height = videoRef.current.videoHeight
         context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height)
         setCapturedImage(canvas.toDataURL('image/png'))
+        openModal()
       }
     }
   }
@@ -77,12 +82,10 @@ const WebCamera: React.FC = () => {
         </>
       )}
       {capturedImage && (
-        <Image
-          src={capturedImage}
-          alt='Captured'
-          className='mt-4 rounded-lg border-4 border-gray-300'
-          width={640}
-          height={480}
+        <ImageModal
+          isOpen={isOpen}
+          onClose={closeModal}
+          capturedImage={capturedImage}
         />
       )}
       <div className='mt-4 flex space-x-4'>
