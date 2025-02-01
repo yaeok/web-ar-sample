@@ -9,6 +9,17 @@ type ImageModalProps = {
 }
 
 const ImageModal = ({ isOpen, onClose, capturedImage }: ImageModalProps) => {
+  // 画像をローカルに保存
+  const saveImage = () => {
+    if (capturedImage) {
+      const link = document.createElement('a')
+      link.href = capturedImage
+      link.download = 'captured_image.png'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
+  }
   if (isOpen) {
     return (
       <div className='fixed inset-0 max-h-screen z-50'>
@@ -32,6 +43,14 @@ const ImageModal = ({ isOpen, onClose, capturedImage }: ImageModalProps) => {
               width={640}
               height={480}
             />
+            <div className='mt-4'>
+              <button
+                onClick={saveImage}
+                className='mt-2 px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-700 text-white'
+              >
+                画像を保存
+              </button>
+            </div>
           </div>
         </div>
       </div>
