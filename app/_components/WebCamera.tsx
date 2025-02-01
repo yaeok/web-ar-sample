@@ -1,16 +1,19 @@
 'use client'
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react'
 
 const WebCamera: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [isCameraOn, setIsCameraOn] = useState<boolean>(false)
   const [hasError, setHasError] = useState<boolean>(false)
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user')
 
   // カメラを起動する関数
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode },
+      })
       if (videoRef.current) {
         videoRef.current.srcObject = stream
         setIsCameraOn(true)
@@ -30,6 +33,13 @@ const WebCamera: React.FC = () => {
       videoRef.current.srcObject = null
       setIsCameraOn(false)
     }
+  }
+
+  // カメラの切り替え
+  const toggleCamera = async () => {
+    stopCamera()
+    setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'))
+    await startCamera()
   }
 
   return (
@@ -68,6 +78,17 @@ const WebCamera: React.FC = () => {
           }`}
         >
           Webカメラを停止
+        </button>
+        <button
+          onClick={toggleCamera}
+          disabled={!isCameraOn}
+          className={`px-4 py-2 rounded-lg text-white ${
+            isCameraOn
+              ? 'bg-green-500 hover:bg-green-700'
+              : 'bg-gray-400 cursor-not-allowed'
+          }`}
+        >
+          カメラ切替
         </button>
       </div>
     </div>
